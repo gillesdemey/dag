@@ -1,0 +1,31 @@
+{
+  "name": "@gillesdemey/dag",
+  "version": "1.0.0",
+  "description": "A directed acyclical graph library",
+  "author": "Gilles De Mey <gilles.de.mey@gmail.com>",
+  "license": "MIT",
+  "main": "dist/index.js",
+  "exports": {
+    "import": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "uvu -r ts-node/register tests"
+  },
+  "files": [
+    "dist/"
+  ],
+  "keywords": [
+    "graph",
+    "algorithms"
+  ],
+  "devDependencies": {
+    "expect": "^27.0.6",
+    "ts-node": "^10.1.0",
+    "uvu": "^0.5.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gillesdemey/graph.git"
+  }
+}

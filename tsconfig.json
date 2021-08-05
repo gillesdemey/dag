@@ -1,0 +1,20 @@
+{
+  "extends": "@whale/tsconfig",
+  "compilerOptions": {
+    "outDir": "dist",
+    "target": "ES2018"
+  },
+  "include": [
+		"src/**/*"
+	],
+  "ts-node": {
+    "transpileOnly": false,
+    "compilerOptions": {
+      "module": "commonjs",
+      "target": "esnext"
+    },
+    "include": [
+      "tests/**/*"
+    ]
+  }
+}
