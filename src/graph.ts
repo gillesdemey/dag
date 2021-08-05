@@ -1,15 +1,7 @@
-import { IEdge, IGraphOptions } from './types'
+import { IEdge, IGraphOptions, Nodes, InEdges, EdgeLabels, Edges, OutEdges, Predecessors, Successors } from './types'
 import { isEmptyMap } from './util'
 
 const EDGE_KEY_DELIM = '\x01'
-
-type Nodes = Map<string, unknown>
-type InEdges = Map<string, Map<string, IEdge>>
-type OutEdges = Map<string, Map<string, IEdge>>
-type Predecessors = Map<string, Map<string, number>>
-type Successors = Map<string, Map<string, number>>
-type Edges = Map<string, IEdge>
-type EdgeLabels = Map<string, unknown>
 
 class Graph {
   private _label?: string
