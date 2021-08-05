@@ -49,4 +49,10 @@ graph.sinks()   // ['8', '9']
 
 ## API
 
-Soon-ish, check out the TypeScript source in the mean time :-)
+Soon-ish, check out the TypeScript source in the meantime :-)
+
+## Acknowledgements
+
+This project started as a fork of [https://github.com/dagrejs/graphlib](https://github.com/dagrejs/graphlib).
+
+The API is inspired by it but is not aiming to be backwards compatible with it.
