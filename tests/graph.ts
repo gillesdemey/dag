@@ -1,5 +1,5 @@
 import { suite } from 'uvu'
-import * as expect from 'expect'
+import expect from 'expect'
 
 import Graph from '../src/graph'
 

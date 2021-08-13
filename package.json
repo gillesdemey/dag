@@ -4,13 +4,11 @@
   "description": "A directed acyclical graph library",
   "author": "Gilles De Mey <gilles.de.mey@gmail.com>",
   "license": "MIT",
-  "main": "dist/index.js",
-  "exports": {
-    "import": "./dist/index.js"
-  },
+  "exports": "./dist/index.js",
+  "main": "./dist/index.js",
   "scripts": {
     "build": "tsc",
-    "test": "uvu -r ts-node/register tests"
+    "test": "tsc --noEmit && uvu -r esbuild-register tests"
   },
   "files": [
     "dist/"
@@ -20,8 +18,8 @@
     "algorithms"
   ],
   "devDependencies": {
+    "esbuild-register": "^3.0.0",
     "expect": "^27.0.6",
-    "ts-node": "^10.1.0",
     "typescript": "^4.3.5",
     "uvu": "^0.5.1"
   },
