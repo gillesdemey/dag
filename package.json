@@ -18,6 +18,7 @@
     "algorithms"
   ],
   "devDependencies": {
+    "esbuild": "^0.12.20",
     "esbuild-register": "^3.0.0",
     "expect": "^27.0.6",
     "typescript": "^4.3.5",
