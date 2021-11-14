@@ -3,7 +3,7 @@ import { isEmptyMap } from './util'
 
 const EDGE_KEY_DELIM = '\x01'
 
-class Graph {
+class Graph<T = any, U = any> {
   private _label?: string
   private _nodes: Nodes
   private _in: InEdges
@@ -19,7 +19,7 @@ class Graph {
     this._label = options.label
 
     // v -> label
-    this._nodes = new Map()
+    this._nodes = new Map<string, T>()
 
     // v -> edgeObj
     this._in = new Map()
@@ -71,7 +71,7 @@ class Graph {
    * Otherwise returns undefined.
    * Takes O(1) time.
    */
-  node (v: string): unknown {
+  node (v: string): T {
     return this._nodes.get(v)
   }
 
@@ -81,7 +81,7 @@ class Graph {
    * If value is supplied it is set as the value for the node.
    * Takes O(1) time.
    */
-  setNode <T>(v: string, value?: T): Graph {
+  setNode (v: string, value?: T): Graph {
     // if node already exists, just set value
     if (this._nodes.has(v)) {
       this._nodes.set(v, value ?? null)
@@ -195,7 +195,7 @@ class Graph {
    * v and w can be interchanged for undirected graphs.
    * Takes O(1) time.
    */
-  edge (v: string, w: string): unknown {
+  edge (v: string, w: string): U {
     const e = edgeArgsToId(v, w)
     return this._edgeLabels.get(e)
   }
@@ -215,7 +215,7 @@ class Graph {
    * If value is supplied it is set as the value for the edge.
    * Takes O(1) time.
    */
-  setEdge <T>(v: string, w: string, value?: T): Graph {
+  setEdge (v: string, w: string, value?: U): Graph {
     const e = edgeArgsToId(v, w)
 
     // if edge already exists, just set value
