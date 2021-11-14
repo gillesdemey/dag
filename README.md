@@ -4,7 +4,7 @@ A directed acyclical graph library
 
 ## Installation
 
-`npm install @gillesdemey/graph`
+`npm install @gillesdemey/dag`
 
 ## Example
 
