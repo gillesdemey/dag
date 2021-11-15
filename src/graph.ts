@@ -1,17 +1,17 @@
-import { Node, Edge, GraphOptions, Nodes, InEdges, EdgeLabels, Edges, OutEdges, Predecessors, Successors, EdgeLabel } from './types'
+import { Edge, GraphOptions, Nodes, InEdges, EdgeLabels, Edges, OutEdges, Predecessors, Successors } from './types'
 import { isEmptyMap } from './util'
 
 const EDGE_KEY_DELIM = '\x01'
 
 class Graph<T = any, U = any> {
   private _label?: string
-  private _nodes: Nodes<T>
+  private _nodes: Nodes<T | undefined>
   private _in: InEdges
   private _out: OutEdges
   private _predecessors: Predecessors
   private _successors: Successors
   private _edges: Edges
-  private _edgeLabels: EdgeLabels<U>
+  private _edgeLabels: EdgeLabels<U | undefined>
   private _nodeCount: number
   private _edgeCount: number
 
@@ -19,7 +19,7 @@ class Graph<T = any, U = any> {
     this._label = options.label
 
     // v -> label
-    this._nodes = new Map<string, Node<T>>()
+    this._nodes = new Map<string, T>()
 
     // v -> edgeObj
     this._in = new Map()
@@ -71,7 +71,7 @@ class Graph<T = any, U = any> {
    * Otherwise returns undefined.
    * Takes O(1) time.
    */
-  node (v: string): Node<T> {
+  node (v: string): T | undefined {
     return this._nodes.get(v)
   }
 
@@ -177,7 +177,7 @@ class Graph<T = any, U = any> {
    * Use node(v) to get the label for each node.
    * Takes O(|V|) time.
    */
-  nodes (): Nodes<T> {
+  nodes (): Nodes<T | undefined> {
     return this._nodes
   }
 
@@ -195,7 +195,7 @@ class Graph<T = any, U = any> {
    * v and w can be interchanged for undirected graphs.
    * Takes O(1) time.
    */
-  edge (v: string, w: string): EdgeLabel<U> {
+  edge (v: string, w: string): U | undefined {
     const e = edgeArgsToId(v, w)
     return this._edgeLabels.get(e)
   }
@@ -259,7 +259,7 @@ class Graph<T = any, U = any> {
    * Returns those nodes in the graph that have no in-edges.
    * Takes O(|V|) time.
    */
-  sources (): Nodes<T> {
+  sources (): Nodes<T | undefined> {
     const nodes = Array.from(this.nodes())
 
     const sources = nodes.filter(([id]) => {
@@ -274,7 +274,7 @@ class Graph<T = any, U = any> {
    * Returns those nodes in the graph that have no out-edges.
    * Takes O(|V|) time.
    */
-  sinks (): Nodes<T> {
+  sinks (): Nodes<T | undefined> {
     const nodes = Array.from(this.nodes())
 
     const sinks = nodes.filter(([id]) => {
