@@ -1,10 +1,7 @@
-import { Edge, GraphOptions, Nodes, InEdges, EdgeLabels, Edges, OutEdges, Predecessors, Successors } from './types'
+import { Edge, GraphOptions, Nodes, InEdges, EdgeLabels, Edges, OutEdges, Predecessors, Successors, OptionalNodeValue, OptionalEdgeValue } from './types'
 import { isEmptyMap } from './util'
 
 const EDGE_KEY_DELIM = '\x01'
-
-type OptionalNodeValue<T> = T extends undefined ? [v: string] : [v: string, value: T]
-type OptionalEdgeValue<U> = U extends undefined ? [v: string, w: string] : [v: string, w: string,  value: U]
 
 class Graph<T extends any = undefined, U extends any = undefined> {
   private _label?: string
@@ -14,7 +11,7 @@ class Graph<T extends any = undefined, U extends any = undefined> {
   private _predecessors: Predecessors
   private _successors: Successors
   private _edges: Edges
-  private _edgeLabels: EdgeLabels<U | undefined>
+  private _edgeLabels: EdgeLabels<U>
   private _nodeCount: number
   private _edgeCount: number
 
@@ -269,7 +266,7 @@ class Graph<T extends any = undefined, U extends any = undefined> {
    * Returns those nodes in the graph that have no in-edges.
    * Takes O(|V|) time.
    */
-  sources (): Nodes<T | undefined> {
+  sources (): Nodes<T> {
     const nodes = Array.from(this.nodes())
 
     const sources = nodes.filter(([id]) => {
@@ -284,7 +281,7 @@ class Graph<T extends any = undefined, U extends any = undefined> {
    * Returns those nodes in the graph that have no out-edges.
    * Takes O(|V|) time.
    */
-  sinks (): Nodes<T | undefined> {
+  sinks (): Nodes<T> {
     const nodes = Array.from(this.nodes())
 
     const sinks = nodes.filter(([id]) => {
