@@ -17,4 +17,3 @@ export type EdgeLabels<U> = Map<string, U>
 
 export type OptionalNodeValue<T> = T extends undefined ? [v: string] : [v: string, value: T]
 export type OptionalEdgeValue<U> = U extends undefined ? [v: string, w: string] : [v: string, w: string,  value: U]
-
