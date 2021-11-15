@@ -102,12 +102,14 @@ setNode('creates the node if it is not part of the graph', ({ graph }) => {
   expect(graph.nodeCount()).toBe(1)
 })
 
-setNode('can set a value for the node', ({ graph }) => {
+setNode('can set a value for the node', () => {
+  const graph = new Graph<string>()
   graph.setNode('a', 'foo')
   expect(graph.node('a')).toEqual('foo')
 })
 
-setNode('is idempotent', ({ graph }) => {
+setNode('is idempotent', () => {
+  const graph = new Graph<string>()
   graph.setNode('a', 'foo')
   graph.setNode('a', 'foo')
   expect(graph.node('a')).toEqual('foo')
@@ -118,7 +120,8 @@ setNode('is chainable', ({ graph }) => {
   expect(graph.setNode('a')).toEqual(graph)
 })
 
-setNode('should not set node value to undefined when setting edge', ({ graph }) => {
+setNode('should not set node value to undefined when setting edge', () => {
+  const graph = new Graph<string>()
   graph.setNode('a', 'foo')
   graph.setNode('b', 'bar')
   graph.setEdge('a', 'b')
@@ -139,7 +142,8 @@ node('returns undefined if the node is not part of the graph', ({ graph }) => {
   expect(graph.node('a')).toBe(undefined)
 })
 
-node('returns the value of the node if it is part of the graph', ({ graph }) => {
+node('returns the value of the node if it is part of the graph', () => {
+  const graph = new Graph<string>()
   graph.setNode('a', 'foo')
   expect(graph.node('a')).toEqual('foo')
 })
@@ -174,9 +178,13 @@ removeNode('is idempotent', ({ graph }) => {
 })
 
 removeNode('removes edges incident on the node', ({ graph }) => {
-  graph.setEdge('a', 'b')
-  graph.setEdge('b', 'c')
-  graph.removeNode('b')
+  graph
+    .setNode('a')
+    .setNode('b')
+    .setNode('c')
+    .setEdge('b', 'c')
+    .removeNode('b')
+
   expect(graph.edgeCount()).toEqual(0)
 })
 
@@ -192,34 +200,39 @@ const setEdge = suite<Context>('setEdge')
 setEdge.before.each(newGraph)
 
 setEdge('creates the edge if it is not part of the graph', ({ graph }) => {
-  graph.setNode('a')
-  graph.setNode('b')
-  graph.setEdge('a', 'b')
+  graph
+    .setNode('a')
+    .setNode('b')
+    .setEdge('a', 'b')
+
   expect(graph.edge('a', 'b')).toBe(undefined)
   expect(graph.hasEdge('a', 'b')).toBe(true)
   expect(graph.edgeCount()).toEqual(1)
 })
 
-setEdge('creates the nodes for the edge if they are not part of the graph', ({ graph }) => {
-  graph.setEdge('a', 'b')
-  expect(graph.hasNode('a')).toBe(true)
-  expect(graph.hasNode('b')).toBe(true)
-  expect(graph.nodeCount()).toEqual(2)
+setEdge('throws if nodes for the edge are not part of the graph', ({ graph }) => {
+  expect(() => {
+    graph.setEdge('a', 'b')
+  }).toThrowError()
 })
 
-setEdge('changes the value for an edge if it is already in the graph', ({ graph }) => {
-  graph.setEdge('a', 'b', 'foo')
-  graph.setEdge('a', 'b', 'bar')
+setEdge('changes the value for an edge if it is already in the graph', () => {
+  const graph = new Graph<undefined, string>()
+    .setNode('a')
+    .setNode('b')
+    .setEdge('a', 'b', 'foo')
+    .setEdge('a', 'b', 'bar')
   expect(graph.edge('a', 'b')).toEqual('bar')
 })
 
 setEdge('treats edges in opposite directions as distinct in a digraph', ({ graph }) => {
-  graph.setEdge('a', 'b')
+  graph.setNode('a').setNode('b').setEdge('a', 'b')
   expect(graph.hasEdge('a', 'b')).toBe(true)
   expect(graph.hasEdge('b', 'a')).toBe(false)
 })
 
 setEdge('is chainable', ({ graph }) => {
+  graph.setNode('a').setNode('b')
   expect(graph.setEdge('a', 'b')).toEqual(graph)
 })
 
@@ -235,6 +248,7 @@ predecessors('returns undefined for a node that is not in the graph', ({ graph }
 })
 
 predecessors('returns the predecessors of a node', ({ graph }) => {
+  graph.setNode('a').setNode('b').setNode('c')
   graph.setEdge('a', 'b')
   graph.setEdge('b', 'c')
   graph.setEdge('a', 'a')
@@ -255,6 +269,9 @@ successors('returns undefined for a node that is not in the graph', ({ graph }) 
 })
 
 successors('returns the successors of a node', ({ graph }) => {
+  graph.setNode('a')
+  graph.setNode('b')
+  graph.setNode('c')
   graph.setEdge('a', 'b')
   graph.setEdge('b', 'c')
   graph.setEdge('a', 'a')
@@ -275,6 +292,9 @@ neighbors('returns undefined for a node that is not in the graph', ({ graph }) =
 })
 
 neighbors('returns the neighbors of a node', ({ graph }) => {
+  graph.setNode('a')
+  graph.setNode('b')
+  graph.setNode('c')
   graph.setEdge('a', 'b')
   graph.setEdge('b', 'c')
   graph.setEdge('a', 'a')
@@ -321,6 +341,9 @@ edges('is empty if there are no edges in the graph', ({ graph }) => {
 })
 
 edges('returns the keys for edges in the graph', ({ graph }) => {
+  graph.setNode('a')
+  graph.setNode('b')
+  graph.setNode('c')
   graph.setEdge('a', 'b')
   graph.setEdge('b', 'c')
 
@@ -341,7 +364,11 @@ edge('returns undefined if the edge is not part of the graph', ({ graph }) => {
   expect(graph.edge('a', 'b')).toBe(undefined)
 })
 
-edge('returns the value of the edge if it is part of the graph', ({ graph }) => {
+edge('returns the value of the edge if it is part of the graph', () => {
+  const graph = new Graph<undefined, { foo: string }>()
+
+  graph.setNode('a')
+  graph.setNode('b')
   graph.setEdge('a', 'b', { foo: 'bar' })
   expect(graph.edge('a', 'b')).toEqual({ foo: 'bar' })
   expect(graph.edge('b', 'a')).toBe(undefined)
@@ -361,6 +388,9 @@ removeEdge('has no effect if the edge is not in the graph', ({ graph }) => {
 })
 
 removeEdge('correctly removes neighbors', ({ graph }) => {
+  graph.setNode('a')
+  graph.setNode('b')
+
   graph.setEdge('a', 'b')
   graph.removeEdge('a', 'b')
   expect(graph.successors('a')).toEqual([])
@@ -370,6 +400,8 @@ removeEdge('correctly removes neighbors', ({ graph }) => {
 })
 
 removeEdge('is chainable', ({ graph }) => {
+  graph.setNode('a')
+  graph.setNode('b')
   graph.setEdge('a', 'b')
   expect(graph.removeEdge('a', 'b')).toEqual(graph)
 })
@@ -386,6 +418,9 @@ inEdges('returns undefined for a node that is not in the graph', ({ graph }) => 
 })
 
 inEdges('returns the edges that point at the specified node', ({ graph }) => {
+  graph.setNode('a')
+  graph.setNode('b')
+  graph.setNode('c')
   graph.setEdge('a', 'b')
   graph.setEdge('b', 'c')
   expect(graph.inEdges('a')).toEqual([])
@@ -405,6 +440,9 @@ outEdges('returns undefined for a node that is not in the graph', ({ graph }) =>
 })
 
 outEdges('returns all edges that this node points at', ({ graph }) => {
+  graph.setNode('a')
+  graph.setNode('b')
+  graph.setNode('c')
   graph.setEdge('a', 'b')
   graph.setEdge('b', 'c')
   expect(graph.outEdges('a')).toEqual([{ v: 'a', w: 'b' }])
@@ -424,6 +462,10 @@ nodeEdges('returns undefined for a node that is not in the graph', ({ graph }) =
 })
 
 nodeEdges('returns all edges that this node points at', ({ graph }) => {
+  graph.setNode('a')
+  graph.setNode('b')
+  graph.setNode('c')
+
   graph.setEdge('a', 'b')
   graph.setEdge('b', 'c')
   expect(graph.nodeEdges('a')).toEqual([{ v: 'a', w: 'b' }])
@@ -432,6 +474,11 @@ nodeEdges('returns all edges that this node points at', ({ graph }) => {
 })
 
 nodeEdges('can return only edges between specific nodes', ({ graph }) => {
+  graph.setNode('a')
+  graph.setNode('b')
+  graph.setNode('c')
+  graph.setNode('z')
+
   graph.setEdge('a', 'b')
   graph.setEdge('a', 'c')
   graph.setEdge('b', 'c')

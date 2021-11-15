@@ -3,9 +3,12 @@ import { isEmptyMap } from './util'
 
 const EDGE_KEY_DELIM = '\x01'
 
-class Graph<T = any, U = any> {
+type OptionalNodeValue<T> = T extends undefined ? [v: string] : [v: string, value: T]
+type OptionalEdgeValue<U> = U extends undefined ? [v: string, w: string] : [v: string, w: string,  value: U]
+
+class Graph<T extends any = undefined, U extends any = undefined> {
   private _label?: string
-  private _nodes: Nodes<T | undefined>
+  private _nodes: Nodes<T>
   private _in: InEdges
   private _out: OutEdges
   private _predecessors: Predecessors
@@ -81,7 +84,10 @@ class Graph<T = any, U = any> {
    * If value is supplied it is set as the value for the node.
    * Takes O(1) time.
    */
-  setNode (v: string, value?: T): Graph<T, U> {
+  setNode (...params: OptionalNodeValue<T>): Graph<T, U> {
+    const v = params[0]
+    const value = params[1] as T
+
     // if node already exists, just set value
     if (this._nodes.has(v)) {
       this._nodes.set(v, value)
@@ -177,7 +183,7 @@ class Graph<T = any, U = any> {
    * Use node(v) to get the label for each node.
    * Takes O(|V|) time.
    */
-  nodes (): Nodes<T | undefined> {
+  nodes (): Nodes<T> {
     return this._nodes
   }
 
@@ -215,7 +221,11 @@ class Graph<T = any, U = any> {
    * If value is supplied it is set as the value for the edge.
    * Takes O(1) time.
    */
-  setEdge (v: string, w: string, value?: U): Graph<T, U> {
+  setEdge (...params: OptionalEdgeValue<U>): Graph<T, U> {
+    const v = params[0]
+    const w = params[1]
+    const value = params[2] as U
+
     const e = edgeArgsToId(v, w)
 
     // if edge already exists, just set value
@@ -226,11 +236,11 @@ class Graph<T = any, U = any> {
 
     // if node already exists
     if (!this._nodes.has(v)) {
-      this.setNode(v)
+      throw new Error(`no such node ${v}`)
     }
 
     if (!this._nodes.has(w)) {
-      this.setNode(w)
+      throw new Error(`no such node ${w}`)
     }
 
     this._edgeLabels.set(e, value)
