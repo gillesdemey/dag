@@ -39,13 +39,15 @@ const nodes = suite<Context>('nodes')
 nodes.before.each(newGraph)
 
 nodes('is empty if there are no nodes in the graph', ({ graph }) => {
-  expect(graph.nodes()).toEqual([])
+  expect(graph.nodes()).toEqual(new Map())
 })
 
 nodes('returns the ids of nodes in the graph', ({ graph }) => {
   graph.setNode('a')
   graph.setNode('b')
-  expect(graph.nodes()).toEqual(['a', 'b'])
+
+  const expected = new Map([['a', undefined], ['b', undefined]])
+  expect(graph.nodes()).toEqual(expected)
 })
 
 nodes.run()
@@ -63,7 +65,8 @@ sources('returns nodes in the graph that have no in-edges', ({ graph }) => {
   graph.setNode('d')
   graph.setEdge('c', 'd')
 
-  expect(graph.sources()).toEqual(['a', 'b', 'c'])
+  const expected = new Map([['a', undefined], ['b', undefined], ['d', undefined]])
+  expect(graph.sources()).toEqual(expected)
 })
 
 sources.run()
@@ -81,7 +84,8 @@ sinks('returns nodes in the graph that have no out-edges', ({ graph }) => {
   graph.setNode('d')
   graph.setEdge('c', 'd')
 
-  expect(graph.sinks()).toEqual(['a', 'b', 'd'])
+  const expected = new Map([['a', undefined], ['b', undefined], ['d', undefined]])
+  expect(graph.sinks()).toEqual(expected)
 })
 
 sinks.run()
@@ -94,7 +98,7 @@ setNode.before.each(newGraph)
 setNode('creates the node if it is not part of the graph', ({ graph }) => {
   graph.setNode('a')
   expect(graph.hasNode('a')).toBe(true)
-  expect(graph.node('a')).toBe(null)
+  expect(graph.node('a')).toBe(undefined)
   expect(graph.nodeCount()).toBe(1)
 })
 
@@ -112,6 +116,16 @@ setNode('is idempotent', ({ graph }) => {
 
 setNode('is chainable', ({ graph }) => {
   expect(graph.setNode('a')).toEqual(graph)
+})
+
+setNode('should not set node value to undefined when setting edge', ({ graph }) => {
+  graph.setNode('a', 'foo')
+  graph.setNode('b', 'bar')
+  graph.setEdge('a', 'b')
+
+  expect(graph.node('a')).toEqual('foo')
+  expect(graph.node('b')).toEqual('bar')
+  expect(graph.edgeCount()).toBe(1)
 })
 
 setNode.run()
@@ -181,7 +195,7 @@ setEdge('creates the edge if it is not part of the graph', ({ graph }) => {
   graph.setNode('a')
   graph.setNode('b')
   graph.setEdge('a', 'b')
-  expect(graph.edge('a', 'b')).toBe(null)
+  expect(graph.edge('a', 'b')).toBe(undefined)
   expect(graph.hasEdge('a', 'b')).toBe(true)
   expect(graph.edgeCount()).toEqual(1)
 })

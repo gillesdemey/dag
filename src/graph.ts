@@ -1,25 +1,25 @@
-import { IEdge, IGraphOptions, Nodes, InEdges, EdgeLabels, Edges, OutEdges, Predecessors, Successors } from './types'
+import { Node, Edge, GraphOptions, Nodes, InEdges, EdgeLabels, Edges, OutEdges, Predecessors, Successors, EdgeLabel } from './types'
 import { isEmptyMap } from './util'
 
 const EDGE_KEY_DELIM = '\x01'
 
 class Graph<T = any, U = any> {
   private _label?: string
-  private _nodes: Nodes
+  private _nodes: Nodes<T>
   private _in: InEdges
   private _out: OutEdges
   private _predecessors: Predecessors
   private _successors: Successors
   private _edges: Edges
-  private _edgeLabels: EdgeLabels
+  private _edgeLabels: EdgeLabels<U>
   private _nodeCount: number
   private _edgeCount: number
 
-  constructor (options: IGraphOptions = {}) {
+  constructor (options: GraphOptions = {}) {
     this._label = options.label
 
     // v -> label
-    this._nodes = new Map<string, T>()
+    this._nodes = new Map<string, Node<T>>()
 
     // v -> edgeObj
     this._in = new Map()
@@ -71,7 +71,7 @@ class Graph<T = any, U = any> {
    * Otherwise returns undefined.
    * Takes O(1) time.
    */
-  node (v: string): T {
+  node (v: string): Node<T> {
     return this._nodes.get(v)
   }
 
@@ -81,14 +81,14 @@ class Graph<T = any, U = any> {
    * If value is supplied it is set as the value for the node.
    * Takes O(1) time.
    */
-  setNode (v: string, value?: T): Graph {
+  setNode (v: string, value?: T): Graph<T, U> {
     // if node already exists, just set value
     if (this._nodes.has(v)) {
-      this._nodes.set(v, value ?? null)
+      this._nodes.set(v, value)
       return this
     }
 
-    this._nodes.set(v, value ?? null)
+    this._nodes.set(v, value)
     this._in.set(v, new Map())
     this._predecessors.set(v, new Map())
     this._out.set(v, new Map())
@@ -112,7 +112,7 @@ class Graph<T = any, U = any> {
    * If the node was removed this function also removes any incident edges.
    * Takes O(|E|) time.
    */
-  removeNode (v: string): Graph {
+  removeNode (v: string): Graph<T, U> {
     if (!this._nodes.has(v)) {
       return this
     }
@@ -144,7 +144,7 @@ class Graph<T = any, U = any> {
    * v and w can be interchanged for undirected graphs.
    * Takes O(1) time.
    */
-  removeEdge (v: string, w: string): Graph {
+  removeEdge (v: string, w: string): Graph<T, U> {
     const e = edgeArgsToId(v, w)
 
     const edge = this._edges.get(e)
@@ -177,15 +177,15 @@ class Graph<T = any, U = any> {
    * Use node(v) to get the label for each node.
    * Takes O(|V|) time.
    */
-  nodes (): string[] {
-    return Array.from(this._nodes.keys())
+  nodes (): Nodes<T> {
+    return this._nodes
   }
 
   /**
    * Returns the edgeObj for each edge in the graph.
    * Takes O(|E|) time.
    */
-  edges (): IEdge[] {
+  edges (): Edge[] {
     return Array.from(this._edges.values())
   }
 
@@ -195,7 +195,7 @@ class Graph<T = any, U = any> {
    * v and w can be interchanged for undirected graphs.
    * Takes O(1) time.
    */
-  edge (v: string, w: string): U {
+  edge (v: string, w: string): EdgeLabel<U> {
     const e = edgeArgsToId(v, w)
     return this._edgeLabels.get(e)
   }
@@ -215,18 +215,25 @@ class Graph<T = any, U = any> {
    * If value is supplied it is set as the value for the edge.
    * Takes O(1) time.
    */
-  setEdge (v: string, w: string, value?: U): Graph {
+  setEdge (v: string, w: string, value?: U): Graph<T, U> {
     const e = edgeArgsToId(v, w)
 
     // if edge already exists, just set value
     if (this._edgeLabels.has(e)) {
-      this._edgeLabels.set(e, value ?? null)
+      this._edgeLabels.set(e, value)
       return this
     }
 
-    this.setNode(v)
-    this.setNode(w)
-    this._edgeLabels.set(e, value ?? null)
+    // if node already exists
+    if (!this._nodes.has(v)) {
+      this.setNode(v)
+    }
+
+    if (!this._nodes.has(w)) {
+      this.setNode(w)
+    }
+
+    this._edgeLabels.set(e, value)
 
     const edgeObj = { v, w }
     this._edges.set(e, { v, w })
@@ -252,22 +259,30 @@ class Graph<T = any, U = any> {
    * Returns those nodes in the graph that have no in-edges.
    * Takes O(|V|) time.
    */
-  sources (): string[] {
-    return this.nodes().filter(node => {
-      const incoming = this._in.get(node)
+  sources (): Nodes<T> {
+    const nodes = Array.from(this.nodes())
+
+    const sources = nodes.filter(([id]) => {
+      const incoming = this._out.get(id)
       return isEmptyMap(incoming)
     })
+
+    return new Map(sources)
   }
 
   /**
    * Returns those nodes in the graph that have no out-edges.
    * Takes O(|V|) time.
    */
-  sinks (): string[] {
-    return this.nodes().filter(node => {
-      const incoming = this._out.get(node)
+  sinks (): Nodes<T> {
+    const nodes = Array.from(this.nodes())
+
+    const sinks = nodes.filter(([id]) => {
+      const incoming = this._out.get(id)
       return isEmptyMap(incoming)
     })
+
+    return new Map(sinks)
   }
 
   /**
@@ -319,7 +334,7 @@ class Graph<T = any, U = any> {
    * Returns undefined if node v is not in the graph.
    * Takes O(|E|) time.
    */
-  inEdges (v: string, w?: string): IEdge[] | undefined {
+  inEdges (v: string, w?: string): Edge[] | undefined {
     const inEdges = this._in.get(v)
     if (!inEdges) {
       return
@@ -335,7 +350,7 @@ class Graph<T = any, U = any> {
      * Returns undefined if node v is not in the graph.
      * Takes O(|E|) time.
      */
-     outEdges (v: string, w?: string): IEdge[] | undefined {
+     outEdges (v: string, w?: string): Edge[] | undefined {
       const outEdges = this._out.get(v)
       if (!outEdges) {
         return
@@ -351,7 +366,7 @@ class Graph<T = any, U = any> {
      * Returns undefined if node v is not in the graph.
      * Takes O(|E|) time.
      */
-    nodeEdges (v: string, w?: string): IEdge[] | undefined {
+    nodeEdges (v: string, w?: string): Edge[] | undefined {
       const inEdges = this.inEdges(v, w)
       if (!inEdges) {
         return

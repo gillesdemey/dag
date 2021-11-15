@@ -1,16 +1,18 @@
-export interface IGraphOptions {
+export interface GraphOptions {
   label?: string
 }
 
-export interface IEdge {
+export interface Edge {
   v: string
   w: string
 }
 
-export type Nodes = Map<string, any>
-export type InEdges = Map<string, Map<string, IEdge>>
-export type OutEdges = Map<string, Map<string, IEdge>>
+export type Node<T> = T | undefined
+export type Nodes<T> = Map<string, Node<T>>
+export type InEdges = Map<string, Map<string, Edge>>
+export type OutEdges = Map<string, Map<string, Edge>>
 export type Predecessors = Map<string, Map<string, number>>
 export type Successors = Map<string, Map<string, number>>
-export type Edges = Map<string, IEdge>
-export type EdgeLabels = Map<string, any>
+export type Edges = Map<string, Edge>
+export type EdgeLabel<U> = U | undefined
+export type EdgeLabels<U> = Map<string, EdgeLabel<U>>
