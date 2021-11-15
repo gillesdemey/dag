@@ -1,6 +1,6 @@
 {
   "name": "@gillesdemey/dag",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "A directed acyclical graph library",
   "author": "Gilles De Mey <gilles.de.mey@gmail.com>",
   "license": "MIT",
